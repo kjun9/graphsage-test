@@ -70,8 +70,9 @@ def supervised_graphsage(
     clipped_grads_and_vars = [(tf.clip_by_value(grad, -5.0, 5.0) if grad is not None else None, var)
                               for grad, var in grads_and_vars]
     opt_op = optimizer.apply_gradients(clipped_grads_and_vars)
-    preds_sm = tf.nn.softmax(preds)
+    y_preds = tf.nn.sigmoid(preds)
+    y_true = labels
 
-    return loss, opt_op, preds_sm
+    return loss, opt_op, y_preds, y_true
 
 

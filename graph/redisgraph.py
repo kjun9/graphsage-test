@@ -55,13 +55,17 @@ class RedisGraph:
         feat2 = self._get_layer_feats(feats, feat_id_map, adj2.flatten())
         return len(ids), labels, feat0, feat1, feat2
 
-    def batch_gen(self):
+    def train_gen(self):
         self.shuffle()
         while self.idx < self.num_train:
             end_idx = min(self.idx + self.batch_size, self.num_train)
             ids = np.array(self._r.lrange('train', self.idx, end_idx - 1)).astype(np.int64)
             self.idx = end_idx
             yield self._get_minibatch(ids)
+
+    def test_gen(self):
+        ids = np.array(self._r.srandmember('test', self.batch_size)).astype(np.int64)
+        yield self._get_minibatch(ids, 'test:')
 
     def shuffle(self):
         # this loads all nodes in memory. not representative of final goal solution
