@@ -46,6 +46,7 @@ def supervised_graphsage(
         agg
 ):
     batch_size, labels, *x = batch_in
+    batch_size = tf.Print(batch_size, [batch_size])
     assert len(x) == len(num_samples) + 1 and len(x) == len(dims)
     nl = len(num_samples)
     num_samples += [1]
@@ -63,7 +64,7 @@ def supervised_graphsage(
     # outputs
     outs = tf.nn.l2_normalize(x[0], 1)
     preds = Dense(num_labels)(outs)
-    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=preds, labels=labels))
+    loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=preds, labels=labels))
     optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
     grads_and_vars = optimizer.compute_gradients(loss)
     clipped_grads_and_vars = [(tf.clip_by_value(grad, -5.0, 5.0) if grad is not None else None, var)
